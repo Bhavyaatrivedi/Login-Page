@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const randomstring = require('randomstring');
-const config = require('../config/config');
+// const config = require('../config');
 
 require('dotenv').config();
 const sgMail = require('@sendgrid/mail');
@@ -42,6 +42,7 @@ const createToken = (id) => {
   });
 };
 
+//error handling
 const handleErrors = (err) => {
   let errors = { email: '', password: '' };
 
@@ -67,6 +68,8 @@ const handleErrors = (err) => {
 
   return errors;
 };
+
+
 //hash the new password
 const securePassword = async (password) => {
   try {
@@ -76,6 +79,8 @@ const securePassword = async (password) => {
     res.status(400).send(error.message);
   }
 };
+
+//Register a user
 module.exports.register = async (req, res, next) => {
   try {
     const { email, password, mobileNo, address } = req.body;
@@ -96,19 +101,23 @@ module.exports.register = async (req, res, next) => {
   }
 };
 
+
+//Login a user
 module.exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.login(email, password);
     const token = createToken(user._id);
     res.cookie('jwt', token, { httpOnly: false, maxAge: maxAge * 1000 });
-    res.status(200).json({ user: user._id, status: true });
+    res.status(200).json({ user: user._id, success: true }); // Change 'status' to 'success'
   } catch (err) {
     const errors = handleErrors(err);
-    res.json({ errors, status: false });
+    res.json({ errors, success: false }); // Change 'status' to 'success'
   }
 };
 
+
+//Forget password
 module.exports.forget_password = async (req, res) => {
   try {
     const email = req.body.email;
@@ -133,7 +142,7 @@ module.exports.forget_password = async (req, res) => {
   }
 };
 
-
+//checking password
 const comparePassword = async (plainPassword, hashedPassword) => {
   try {
     const isMatch = await bcrypt.compare(plainPassword, hashedPassword);
@@ -144,24 +153,7 @@ const comparePassword = async (plainPassword, hashedPassword) => {
   }
 };
 
-// module.exports.reset_password = async(req,res) =>{
-//   try{
-//     const token = req.query.token;
-//     const tokenData= await User.findOne({token:token});
-//     if(tokenData){
-//       const password = req.body.password;
-//       const newPassword = await securePassword(password)
-//       const userData = await User.findByIdAndUpdate({_id:tokenData._id}, {$set:{password:newPassword, token:''}},{new:true})
-//       res.status(200).send({success:true, msg:"User password has been reset", data:userData});
-//     }
-//     else{
-//       res.status(200).send({success:true, msg:"Could not reset password"})
-//     }
-//   } catch(err){
-//     res.status(400).send({success:false, msg:err.message})
-//   }
-// }
-
+//reset password
 module.exports.reset_password = async (req, res) => {
   try {
     const token = req.query.token;
@@ -179,7 +171,6 @@ module.exports.reset_password = async (req, res) => {
         });
       }
 
-      // Hash the new password
       const hashedPassword = await securePassword(newPassword);
 
       // Update the user's password and clear the token
@@ -204,3 +195,12 @@ module.exports.reset_password = async (req, res) => {
     res.status(400).send({ success: false, msg: err.message });
   }
 };
+
+//Logout 
+module.exports.logout = (req, res) => {
+ //Clearing jwt token
+  res.clearCookie('jwt');
+  
+  res.status(200).json({ success: true, msg: 'User logged out successfully' });
+};
+
