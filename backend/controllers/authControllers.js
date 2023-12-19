@@ -142,6 +142,36 @@ module.exports.forget_password = async (req, res) => {
   }
 };
 
+//updating password
+module.exports.update_password = async(req, res) =>{
+  try {
+    const { token, password } = req.body;
+
+    // Check if the token is valid
+    const user = await User.findOne({ token });
+
+    if (!user) {
+      return res.status(404).json({ success: false, msg: 'Invalid or expired token' });
+    }
+
+   
+    const hashedPassword = await securePassword(password);
+
+    // Update the user's password and clear the token
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { $set: { password: hashedPassword, token: '' } },
+      { new: true }
+    );
+
+    res.status(200).json({ success: true, msg: 'Password updated successfully', data: updatedUser });
+  } catch (err) {
+    consle.error('Error updating password:', err);
+    res.status(500).json({ success: false, msg: 'Internal Server Error' });
+  }
+}
+
+
 //checking password
 const comparePassword = async (plainPassword, hashedPassword) => {
   try {
@@ -204,3 +234,45 @@ module.exports.logout = (req, res) => {
   res.status(200).json({ success: true, msg: 'User logged out successfully' });
 };
 
+//CRUD operations
+//adding a user
+
+module.exports.addUser = async (req, res) => {
+  try {
+    const { email, password, mobileNo, address } = req.body;
+    const user = await User.create({ email, password, mobileNo, address });
+
+    const token = createToken(user._id);
+
+    res.cookie('jwt', token, {
+      withCredentials: true,
+      httpOnly: false,
+      maxAge: maxAge * 1000,
+    });
+
+    res.status(201).json({ user: user._id, created: true });
+  } catch (err) {
+    console.error(err);
+    const errors = handleErrors(err);
+    res.json({ errors, created: false });
+  }
+};
+
+//delete user
+module.exports.deleteUser = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).json({ success: false, msg: 'User not found' });
+    }
+
+    res.status(200).json({ success: true, msg: 'User deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, msg: 'Internal Server Error' });
+  }
+};

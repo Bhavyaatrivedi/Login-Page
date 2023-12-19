@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link} from "react-router-dom";
+import ForgetPassword from "./forgetPassw";
 
 const Login = () => {
   const [data, setData] = useState({ email: "", password: "" });
@@ -10,33 +11,6 @@ const Login = () => {
     setData({ ...data, [input.name]: input.value });
   };
 
-  
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const url = "http://localhost:4000/login";
-  //     const response = await axios.post(url, data);
-
-  //     // Assuming your API response contains a token
-  //     localStorage.setItem("token", response.data.token);
-
-  //     // Check if the login was successful before redirecting
-  //     if (response.data.success) {
-  //       window.location = "/home"; // Redirect to home page after successful login
-  //     } else {
-  //       setError("Invalid email or password");
-  //     }
-  //   } catch (error) {
-  //     if (
-  //       error.response &&
-  //       error.response.status >= 400 &&
-  //       error.response.status <= 500
-  //     ) {
-  //       setError(error.response.data.message);
-  //     }
-  //   }
-  // };
-  //new
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -59,7 +33,7 @@ const Login = () => {
       }
     }
   };
-  
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -111,7 +85,10 @@ const Login = () => {
           <Link to="/signup" className="text-blue-500 hover:underline">
             Don't have an account? Sign up here.
           </Link>
+
         </form>
+        <ForgetPassword />
+     
       </div>
     </div>
   );
