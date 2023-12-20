@@ -1,5 +1,6 @@
 import React, { useState} from 'react';
 import axios from 'axios';
+import {useNavigate } from 'react-router-dom'
 
 
 const ResetPassword = (props) => {
@@ -8,6 +9,7 @@ const ResetPassword = (props) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
@@ -22,9 +24,12 @@ const ResetPassword = (props) => {
 
     try {
 
-    //   const token = props.match.params.token;
-    const token = props.match?.params?.token;
-      
+   
+    const urlSearchString = window.location.search;
+
+ const params = new URLSearchParams(urlSearchString);
+ const token =  params.get("token");
+
 
     const response = await axios.post(`http://localhost:4000/reset-password?token=${token}`, {
       password,
@@ -78,6 +83,10 @@ const ResetPassword = (props) => {
         {error && <div>{error}</div>}
         {success && <div>{success}</div>}
         <button type="submit">Reset Password</button>
+
+        <button type="button" onClick={() => navigate('/login')}>
+          Log In
+        </button>
       </form>
     </div>
   );
