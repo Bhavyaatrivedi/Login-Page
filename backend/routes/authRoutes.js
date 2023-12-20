@@ -3,13 +3,15 @@ const { register,
         logout, 
         addUser, 
         deleteUser, 
-        update_password
+        update_password,
+        get_user
        } = require('../controllers/authControllers');
  const { checkUser } = require('../middlewares/authMiddleware');
 const {
   forget_password,
   reset_password,
 } = require('../controllers/authControllers');
+const requireAuth = require('../middlewares/requireAuth')
 
 const router = require('express').Router();
 
@@ -30,5 +32,11 @@ router.post('/add-user', addUser);
 router.post('/update-password', update_password);
 
 router.delete('/delete-user/:id', deleteUser);
+
+
+//router.use(requireAuth)
+router.get('/get-user', get_user);
+
+
 
 module.exports = router;

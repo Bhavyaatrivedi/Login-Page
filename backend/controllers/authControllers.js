@@ -36,11 +36,16 @@ const sendMail = (name, email, token) => {
 };
 
 const maxAge = 3 * 24 * 60 * 60;
-const createToken = (id) => {
-  return jwt.sign({ id }, ' super secret key', {
-    expiresIn: maxAge,
-  });
+// const createToken = (id) => {
+//   return jwt.sign({ id }, ' super secret key', {
+//     expiresIn: maxAge,
+//   });
+// };
+const createToken = (userId) => {
+  console.log('Using secret key:', process.env.SECRET);
+  return jwt.sign({ _id: userId }, process.env.SECRET, { expiresIn: maxAge });
 };
+
 
 //error handling
 const handleErrors = (err) => {
@@ -108,11 +113,11 @@ module.exports.login = async (req, res) => {
   try {
     const user = await User.login(email, password);
     const token = createToken(user._id);
-    res.cookie('jwt', token, { httpOnly: false, maxAge: maxAge * 1000 });
-    res.status(200).json({ user: user._id, success: true }); // Change 'status' to 'success'
+    //res.cookie('jwt', token, { httpOnly: false, maxAge: maxAge * 1000 });
+    res.status(200).json({ user: user._id, token:token ,success: true }); 
   } catch (err) {
     const errors = handleErrors(err);
-    res.json({ errors, success: false }); // Change 'status' to 'success'
+    res.json({ errors, success: false }); 
   }
 };
 
@@ -187,8 +192,9 @@ const comparePassword = async (plainPassword, hashedPassword) => {
 module.exports.reset_password = async (req, res) => {
   try {
     const token = req.query.token;
-    const tokenData = await User.findOne({ token: token });
+    console.log(token,"DRK4TVCUQmsBtd5CxssTu2QGWl4HAwyeDRK4TVCUQmsBtd5CxssTu2QGWl4HAwyeDRK4TVCUQmsBtd5CxssTu2QGWl4HAwye")
 
+    const tokenData = await User.findOne({ token: token });
     if (tokenData) {
       const newPassword = req.body.password;
       const confirmPassword = req.body.confirmPassword;
@@ -276,3 +282,9 @@ module.exports.deleteUser = async (req, res) => {
     res.status(500).json({ success: false, msg: 'Internal Server Error' });
   }
 };
+
+//get user
+module.exports.get_user= async(req, res) =>{
+  const users = await User.find();
+  res.json(users);
+}
