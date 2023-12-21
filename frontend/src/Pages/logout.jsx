@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Cookies from "js-cookie";
 
 
 const LogoutButton = () => {
@@ -8,23 +9,11 @@ const LogoutButton = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:4000/log-out', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      setLogoutStatus(data);
-
-      // Redirect to login page after successful logout
-      if (data.success) {
+      Cookies.remove('user')
         navigate('/login');
-      }
-      else {
-       //handling non-json response
-        console.error('Non-JSON response:', response.statusText);
-        setLogoutStatus({ success: false });
-      }
+
+
+ 
     } catch (error) {
       console.error('Logout error:', error);
     }

@@ -4,11 +4,14 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
 const cookieParser = require('cookie-parser');
 const User = require('./model/authModel');
+const multer = require('multer')
+
+
 
 const app = express();
 
 
-
+global.__basedir = __dirname;
 const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
 
 app.use(
@@ -27,12 +30,7 @@ app.use(
   })
 );
 
-//  to get all the users registered in the database
-// app.get('/api/users', async (req, res) => {
- 
-//   const users = await User.find();
-//   res.json(users);
-// });
+
 
 app.listen(4000, (err) => {
   if (err) {

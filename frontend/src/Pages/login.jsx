@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link, Navigate, useNavigate} from "react-router-dom";
 import ForgetPassword from "./forgetPassw";
 import { useAuth } from "../utils/authProvider";
+import Cookies from "js-cookie";
 
 const Login = () => {
   const [data, setData] = useState({ email: "", password: "" });
@@ -21,9 +22,9 @@ const Login = () => {
       const response = await axios.post(url, data);
   
       if (response.data.success) {
-        // Redirect to home page after successful login
-        //setUser({ token: response.data.token });
-        login();
+          console.log(response.data,"response.dataresponse.dataresponse.dataresponse.data")
+        Cookies.set("user", { token: response.data.token });
+        // login();
         navigate('/home');
       } else {
         setError("Invalid email or password");

@@ -232,15 +232,7 @@ module.exports.reset_password = async (req, res) => {
   }
 };
 
-//Logout 
-module.exports.logout = (req, res) => {
- //Clearing jwt token
-  res.clearCookie('jwt');
-  
-  res.status(200).json({ success: true, msg: 'User logged out successfully' });
-};
 
-//CRUD operations
 //adding a user
 
 module.exports.addUser = async (req, res) => {
@@ -288,3 +280,79 @@ module.exports.get_user= async(req, res) =>{
   const users = await User.find();
   res.json(users);
 }
+
+
+
+// upload files
+const uploadFile = require("../middlewares/upload");
+
+const fs = require("fs");
+
+
+module.exports.upload_file = async (req, res) => {
+  try {
+    await uploadFile(req, res);
+   
+
+    if (req.file == undefined) {
+      return res.status(400).send({ message: "Please upload a file!" });
+    }
+
+    res.status(200).send({
+      message: "Uploaded the file successfully: " + req.file.originalname,
+    });
+  } catch (err) {
+    console.log(err);
+
+    if (err.code == "LIMIT_FILE_SIZE") {
+      return res.status(500).send({
+        message: "File size cannot be larger than 2MB!",
+      });
+    }
+
+    res.status(500).send({
+      message: `Could not upload the file: ${req.file.originalname}. ${err}`,
+    });
+  }
+};
+
+
+//get files
+module.exports.get_files = (req, res) => {
+  const directoryPath = __basedir + "/uploads";
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      res.status(500).send({
+        message: "Unable to scan files!",
+      });
+    }
+
+    let fileInfos = [];
+
+    files.forEach((file) => {
+      fileInfos.push({
+        name: file,
+        url: baseUrl + file,
+      });
+    });
+
+    res.status(200).send(fileInfos);
+  });
+};
+
+
+//download files
+module.exports.download = (req, res) => {
+  const fileName = req.params.name;
+  const directoryPath = __basedir + "/uploads";
+
+  res.download(directoryPath + fileName, fileName, (err) => {
+    if (err) {
+      res.status(500).send({
+        message: "Could not download the file. " + err,
+      });
+    }
+  });
+};
+
