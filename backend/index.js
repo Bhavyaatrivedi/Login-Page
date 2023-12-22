@@ -3,6 +3,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
 const cookieParser = require('cookie-parser');
+const path = require('path');
+
 const User = require('./model/authModel');
 const multer = require('multer')
 

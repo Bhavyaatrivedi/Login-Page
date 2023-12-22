@@ -9,17 +9,18 @@ const { register,
         upload_file,
         download,
         get_files,
+        add_field,
+        delete_field,
        } = require('../controllers/authControllers');
 
  const { checkUser } = require('../middlewares/authMiddleware');
-const uploadFileMiddleware = require('../middlewares/upload');
 
 
 //const requireAuth = require('../middlewares/requireAuth')
 
 const router = require('express').Router();
 
-// const uploadMiddleware = require('../middlewares/upload')
+
 
 router.post('/', checkUser);
 
@@ -43,6 +44,9 @@ router.post("/upload",upload_file);
 router.get("/files", get_files);
 router.get("/files/:name", download);
 
+//input filds
+router.post('/add-field', add_field)
+router.delete('/delete-field/:name', delete_field)
 
 
 

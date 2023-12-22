@@ -1,6 +1,8 @@
 const User = require('../model/authModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const path = require('path');
+
 const nodemailer = require('nodemailer');
 const randomstring = require('randomstring');
 // const config = require('../config');
@@ -333,7 +335,7 @@ module.exports.get_files = (req, res) => {
     files.forEach((file) => {
       fileInfos.push({
         name: file,
-        url: baseUrl + file,
+        // url: baseUrl + file,
       });
     });
 
@@ -343,16 +345,61 @@ module.exports.get_files = (req, res) => {
 
 
 //download files
-module.exports.download = (req, res) => {
-  const fileName = req.params.name;
-  const directoryPath = __basedir + "/uploads";
 
-  res.download(directoryPath + fileName, fileName, (err) => {
-    if (err) {
-      res.status(500).send({
-        message: "Could not download the file. " + err,
+module.exports.download = (req, res) => {
+  try {
+    const fileName = req.params.name;
+    const filePath = path.join(__basedir, '/uploads', fileName);
+
+    // Check if the file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send({
+        message: 'File not found.',
       });
     }
-  });
+
+    const fileStream = fs.createReadStream(filePath);
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error('Error downloading file:', error.message);
+    res.status(500).send({
+      message: 'Internal server error.',
+    });
+  }
 };
 
+
+
+//adding input fields
+
+//add fields
+module.exports.add_field = (req, res) => {
+  try {
+    const { fields } = req.body;
+
+    if (!Array.isArray(fields) || fields.some(field => !field.name || !field.value)) {
+      return res.status(400).json({ message: 'Invalid or missing fields in the request.' });
+    }
+
+
+    const items = [...fields];
+
+    res.status(201).json({ message: 'Items added successfully.', items });
+  } catch (error) {
+    console.error('Error processing request:', error.message);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+
+
+//delete fields
+module.exports.delete_field =  (req, res) => {
+  let items = [];
+  const nameToDelete = req.params.name;
+
+  items = items.filter((item) => item.name !== nameToDelete);
+
+  res.json({ message: 'Item deleted successfully.', items });
+}

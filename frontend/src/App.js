@@ -7,6 +7,7 @@ import Home from "./Pages/home";
 import ResetPassword from "./Pages/resetPassw";
 import { AuthProvider } from "./utils/authProvider";
 import Upload from "./Pages/upload";
+import InputFields from "./Pages/inputFields";
 
 
 const App = () => {
@@ -26,6 +27,7 @@ const App = () => {
           </Route> */}
           <Route path="/home" element={<Home />} />
           <Route path="/upload" element={<Upload />} />
+          <Route path="/input-field" element={<InputFields />} />
 
           <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
