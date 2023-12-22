@@ -16,8 +16,10 @@ const InputFields = () => {
 
       console.log('New items:', response.data.items);
 
-   
       setFields([{ name: '', value: '' }]);
+
+      // Alert message for successful form submission
+      alert('Form submitted successfully!');
     } catch (error) {
       console.error('Error adding item:', error.message);
     }
@@ -29,8 +31,18 @@ const InputFields = () => {
     setFields(updatedFields);
   };
 
-  const handleAddField = () => {
-    setFields([...fields, { name: '', value: '' }]);
+  const handleAddField = (index) => {
+    const newFields = [...fields];
+    newFields.splice(index + 1, 0, { name: '', value: '' });
+    setFields(newFields);
+  };
+
+
+
+  const handleDeleteField = (index) => {
+    const updatedFields = [...fields];
+    updatedFields.splice(index, 1);
+    setFields(updatedFields);
   };
 
   return (
@@ -49,10 +61,11 @@ const InputFields = () => {
             value={field.value}
             onChange={(e) => handleInputChange(index, 'value', e.target.value)}
           />
+          <button style={{ marginLeft: '5px' }} onClick={() => handleAddField(index)}>+</button>
+          <button style={{ marginLeft: '5px' }} onClick={() => handleDeleteField(index)}>-</button>
         </div>
       ))}
-      <button style={{ marginLeft: '5px' }} onClick={handleAddField}>+</button>
-      <button style={{ marginLeft: '5px' }} onClick={handleAddItem}>Add Item</button>
+      <button style={{ marginLeft: '5px' }} onClick={handleAddItem}>Submit Form</button>
     </div>
   );
 };

@@ -46,9 +46,6 @@ router.get("/files/:name", download);
 
 //input filds
 router.post('/add-field', add_field)
-router.delete('/delete-field/:name', delete_field)
-
-
-
+router.delete('/delete-field/:name', delete_field);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const User = require('../model/authModel');
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const path = require('path');
@@ -370,11 +371,12 @@ module.exports.download = (req, res) => {
 };
 
 
+//input fields
+//name and value
+const InputModel = require('../model/inputModel');
 
-//adding input fields
+module.exports.add_field = async (req, res) => {
 
-//add fields
-module.exports.add_field = (req, res) => {
   try {
     const { fields } = req.body;
 
@@ -382,10 +384,17 @@ module.exports.add_field = (req, res) => {
       return res.status(400).json({ message: 'Invalid or missing fields in the request.' });
     }
 
+    const itemsToInsert = [];
 
-    const items = [...fields];
+   
+    for (const field of fields) {
+      const { name, value } = field;
+      itemsToInsert.push({ name, value });
+    }
 
-    res.status(201).json({ message: 'Items added successfully.', items });
+    const insertedItems = await InputModel.insertMany(itemsToInsert);
+
+    res.status(201).json({ message: 'Items added successfully.', items: insertedItems });
   } catch (error) {
     console.error('Error processing request:', error.message);
     res.status(500).json({ message: 'Internal server error.' });
@@ -394,12 +403,37 @@ module.exports.add_field = (req, res) => {
 
 
 
+
 //delete fields
-module.exports.delete_field =  (req, res) => {
-  let items = [];
-  const nameToDelete = req.params.name;
+module.exports.delete_field = async (req, res) => {
+  try {
+    const { name } = req.params;
 
-  items = items.filter((item) => item.name !== nameToDelete);
+    const deletedItem = await InputModel.findOneAndDelete({ name });
 
-  res.json({ message: 'Item deleted successfully.', items });
-}
+    if (!deletedItem) {
+      return res.status(404).json({ message: 'Item not found.' });
+    }
+
+    res.json({ message: 'Item deleted successfully.', item: deletedItem });
+  } catch (error) {
+    console.error('Error deleting item:', error.message);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+
+
+
+ // const handleDeleteField = async (index) => {
+  //   try {
+  //     const deletedFieldName = fields[index].name;
+  //     await axios.delete(`http://localhost:4000/delete-field/${deletedFieldName}`);
+
+  //     const updatedFields = [...fields];
+  //     updatedFields.splice(index, 1);
+  //     setFields(updatedFields);
+  //   } catch (error) {
+  //     console.error('Error deleting item:', error.message);
+  //   }
+  // };
